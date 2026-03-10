@@ -1,0 +1,8 @@
+# ignore evertyhing
+**
+
+# add only whats needed
+!src/**
+!package.json
+!bun.lock
+!tsconfig.json

@@ -1,0 +1,8 @@
+services:
+  memoize-api-ts:
+    image: memoize-api-ts:latest
+    container_name: memoize-api-ts
+    ports:
+      - "8086:8086"
+    env_file:
+      - .env
