@@ -1,5 +1,9 @@
 {
+  "main": "src/index.ts",
   "imports": {
     "@": "./src/"
+  },
+  "tasks": {
+    "start": "deno run -A --watch src/index.ts"
   }
 }
