@@ -11,7 +11,9 @@ app.route("/auth", authRouter);
 app.onError(errorHandler);
 app.notFound(undefinedRouteHandler);
 
-export default {
-  port: Number(process.env.PORT) || 8086,
-  fetch: app.fetch,
-};
+// export default {
+//   port: Number(process.env.PORT) || 8086,
+//   fetch: app.fetch,
+// };
+
+export default app;
