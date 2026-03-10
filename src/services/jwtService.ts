@@ -1,4 +1,4 @@
-import type { User } from "@/db/entities";
+import type { Role } from "@/utils/enums";
 import { JwtSignError, MissingEnvVarError } from "@/utils/errors";
 import { sign } from "hono/jwt";
 
@@ -8,11 +8,11 @@ if (!jwtSecret) {
 }
 
 export const jwtService = {
-  generateUserAccessToken: async (user: User): Promise<string> => {
+  generateUserAccessToken: async (userId: string, userRole: Role): Promise<string> => {
     const accessToken = await sign(
       {
-        sub: user.id,
-        role: user.role,
+        sub: userId,
+        role: userRole,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 mins
       },

@@ -1,34 +1,16 @@
 import {
   pgTable,
+  index,
   unique,
+  check,
   uuid,
   varchar,
   timestamp,
-  index,
-  check,
   foreignKey,
   text,
   boolean,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-
-export const verificationTokens = pgTable(
-  "verification_tokens",
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    email: varchar({ length: 255 }).notNull(),
-    expiresAt: timestamp("expires_at", { precision: 6, mode: "string" }).notNull(),
-    token: varchar({ length: 255 }).notNull(),
-  },
-  (table) => [unique("uk6q9nsb665s9f8qajm3j07kd1e").on(table.token)],
-);
-
-export const refreshTokens = pgTable("refresh_tokens", {
-  tokenId: uuid("token_id").defaultRandom().primaryKey().notNull(),
-  expiresAt: timestamp("expires_at", { precision: 6, mode: "string" }).notNull(),
-  tokenHash: varchar("token_hash", { length: 255 }).notNull(),
-  userId: uuid("user_id").notNull(),
-});
 
 export const users = pgTable(
   "users",
@@ -51,12 +33,12 @@ export const users = pgTable(
     unique("uk6dotkott2kjsp8vw4d0m25fb7").on(table.email),
     unique("ukr43af9ap4edm43mmtq01oddj6").on(table.username),
     check(
-      "users_role_check",
-      sql`(role)::text = ANY ((ARRAY['ADMIN'::character varying, 'MOD'::character varying, 'USER'::character varying, 'OTHER'::character varying])::text[])`,
+      "users_auth_source_check",
+      sql`(auth_source)::text = ANY (ARRAY[('EMAIL'::character varying)::text, ('GOOGLE'::character varying)::text])`,
     ),
     check(
-      "users_auth_source_check",
-      sql`(auth_source)::text = ANY ((ARRAY['EMAIL'::character varying, 'GOOGLE'::character varying])::text[])`,
+      "users_role_check",
+      sql`(role)::text = ANY (ARRAY[('ADMIN'::character varying)::text, ('MOD'::character varying)::text, ('USER'::character varying)::text, ('OTHER'::character varying)::text])`,
     ),
   ],
 );
@@ -79,7 +61,25 @@ export const notes = pgTable(
     foreignKey({
       columns: [table.userId],
       foreignColumns: [users.id],
-      name: "fkechaouoa6kus6k1dpix1u91c",
-    }),
+      name: "fk_notes_user",
+    }).onDelete("cascade"),
   ],
 );
+
+export const verificationTokens = pgTable(
+  "verification_tokens",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    email: varchar({ length: 255 }).notNull(),
+    expiresAt: timestamp("expires_at", { precision: 6, mode: "string" }).notNull(),
+    token: varchar({ length: 255 }).notNull(),
+  },
+  (table) => [unique("uk6q9nsb665s9f8qajm3j07kd1e").on(table.token)],
+);
+
+export const refreshTokens = pgTable("refresh_tokens", {
+  tokenId: uuid("token_id").defaultRandom().primaryKey().notNull(),
+  expiresAt: timestamp("expires_at", { precision: 6, mode: "string" }).notNull(),
+  tokenHash: varchar("token_hash", { length: 255 }).notNull(),
+  userId: uuid("user_id").notNull(),
+});

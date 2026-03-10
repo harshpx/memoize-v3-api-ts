@@ -5,6 +5,7 @@ import { AuthError, DbQueryError, IllegalArgumentError, NotProvidedError } from 
 import { and, eq, gt } from "drizzle-orm";
 import { jwtService } from "./jwtService";
 import type { AuthResponse, Cookie } from "@/utils/types";
+import type { Role } from "@/utils/enums";
 
 const tokenExpiryDays = 10;
 
@@ -51,7 +52,7 @@ export const refreshTokenService = {
     if (!user) {
       throw new AuthError("User associated with the provided refresh token no longer exists");
     }
-    const newAccessToken = await jwtService.generateUserAccessToken(user);
+    const newAccessToken = await jwtService.generateUserAccessToken(user.id, user.role as Role);
 
     await db.delete(refreshTokens).where(eq(refreshTokens.tokenId, existingRefreshToken.tokenId));
 

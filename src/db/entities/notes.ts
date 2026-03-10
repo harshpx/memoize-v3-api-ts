@@ -20,8 +20,8 @@ export const notes = pgTable(
     foreignKey({
       columns: [table.userId],
       foreignColumns: [users.id],
-      name: "fkechaouoa6kus6k1dpix1u91c",
-    }),
+      name: "fk_notes_user",
+    }).onDelete("cascade"),
   ],
 );
 

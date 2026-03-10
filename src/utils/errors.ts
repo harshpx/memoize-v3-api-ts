@@ -69,3 +69,15 @@ export class IllegalArgumentError extends AppError {
     super(message, 400);
   }
 }
+
+export class IllegalStateError extends AppError {
+  constructor(message: string = "Illegal state") {
+    super(message, 500);
+  }
+}
+
+export class EmailServiceError extends AppError {
+  constructor(message: string = "Failed to send email") {
+    super(message, 503);
+  }
+}
