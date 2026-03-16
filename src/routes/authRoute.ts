@@ -4,7 +4,7 @@ import { validateRequest } from "@/middlewares/validateRequest";
 import { emailSchema, loginSchema, signupSchema } from "@/utils/schemas";
 import { authService } from "@/services/authService";
 import { getCookie } from "hono/cookie";
-import { AuthError } from "@/utils/errors";
+import { AuthError, NotProvidedError } from "@/utils/errors";
 import { refreshTokenService } from "@/services/refreshTokenService";
 
 const authRouter = new Hono();
@@ -56,6 +56,38 @@ authRouter.post("/signup", validateRequest(signupSchema), async (c) => {
   // return
   applyCookie(c, refreshTokenCookie);
   return c.json(apiResponse({ accessToken: authResponse.accessToken }));
+});
+
+authRouter.post("/logout", async (c) => {
+  // read
+  const refreshToken = getCookie(c, "refreshToken");
+  if (!refreshToken) {
+    return c.json(apiResponse("No refresh token found, user is already logged out"));
+  }
+  // process
+  await authService.logout(refreshToken);
+  const cookie = refreshTokenService.deleteRefreshTokenCookie();
+  // return
+  applyCookie(c, cookie);
+  return c.json(apiResponse("Logged out successfully"));
+});
+
+authRouter.get("/check-email", async (c) => {
+  const email = c.req.query("email");
+  if (!email) {
+    throw new NotProvidedError("Email is required in query parameters");
+  }
+  const available = await authService.checkEmailAvailability(email);
+  return c.json(apiResponse(available));
+});
+
+authRouter.get("/check-username", async (c) => {
+  const username = c.req.query("username");
+  if (!username) {
+    throw new NotProvidedError("Username is required in query parameters");
+  }
+  const available = await authService.checkUsernameAvailability(username);
+  return c.json(apiResponse(available));
 });
 
 export default authRouter;

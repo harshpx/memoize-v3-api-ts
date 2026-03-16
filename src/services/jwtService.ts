@@ -1,6 +1,8 @@
 import type { Role } from "@/utils/enums";
 import { JwtSignError, MissingEnvVarError } from "@/utils/errors";
-import { sign } from "hono/jwt";
+import type { AccessTokenData } from "@/utils/types";
+import { sign, verify } from "hono/jwt";
+import type { JWTPayload } from "hono/utils/jwt/types";
 
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) {
@@ -17,6 +19,7 @@ export const jwtService = {
         exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 mins
       },
       jwtSecret,
+      "HS256",
     );
 
     if (!accessToken) {
@@ -24,5 +27,15 @@ export const jwtService = {
     }
 
     return accessToken;
+  },
+  verifyAndDecodeAccessToken: async (token: string): Promise<AccessTokenData> => {
+    const decoded: JWTPayload = await verify(token, jwtSecret, "HS256");
+    if (!decoded || typeof decoded.sub !== "string" || typeof decoded.role !== "string") {
+      throw new JwtSignError("Invalid access token");
+    }
+    return {
+      userId: decoded.sub,
+      role: decoded.role as Role,
+    };
   },
 };

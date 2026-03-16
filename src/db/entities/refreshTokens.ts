@@ -8,4 +8,4 @@ export const refreshTokens = pgTable("refresh_tokens", {
   userId: uuid("user_id").notNull(),
 });
 
-export type RefreshToken = InferSelectModel<typeof refreshTokens>;
+export type RefreshTokenEntity = InferSelectModel<typeof refreshTokens>;

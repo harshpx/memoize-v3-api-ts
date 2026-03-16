@@ -22,3 +22,10 @@ export const emailSchema = z.object({
 });
 
 export type EmailRequest = z.infer<typeof emailSchema>;
+
+export const NoteModifySchema = z.object({
+  content: z.string(),
+  preview: z.string(),
+});
+
+export type NoteModifyRequest = z.infer<typeof NoteModifySchema>;

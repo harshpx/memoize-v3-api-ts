@@ -4,11 +4,25 @@ import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 export const errorHandler = (err: Error, c: Context) => {
-  console.error(`[ERROR][${err.name}]: ${err.message}`);
+  let errorName: string = "InternalServerError";
+  let errorMessage: string = "An unexpected error occurred";
+  let statusCode: ContentfulStatusCode = 500;
 
-  let status: ContentfulStatusCode = 500;
-  if (err instanceof AppError) {
-    status = err.getStatusCode();
+  // Inbuilt library errors
+  if (err.name.startsWith("Jwt")) {
+    errorName = err.name;
+    errorMessage = "Access Token expired or invalid";
+    statusCode = 401;
   }
-  return c.json(errorResponse(err.message), status);
+  // to add more lib errors ...
+
+  // Custom application errors
+  if (err instanceof AppError) {
+    errorName = err.name;
+    errorMessage = err.message;
+    statusCode = err.getStatusCode();
+  }
+
+  console.error(`[ERROR][${errorName}]: ${errorMessage}`);
+  return c.json(errorResponse(`[${errorName}]: ${errorMessage}`), statusCode);
 };

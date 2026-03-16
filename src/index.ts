@@ -1,19 +1,21 @@
 import { Hono } from "hono";
 import { errorHandler } from "@/middlewares/errorHandler";
-import healthRouter from "@/routes/healthRoute";
 import { undefinedRouteHandler } from "./middlewares/undefinedRoute";
-import authRouter from "@/routes/authRoute";
+import { securityHandler } from "./middlewares/securityHandler";
+import appRouter from "./routes";
+import type { AppEnv } from "./utils/types";
+import { corsHandler } from "./middlewares/corsHandler";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 
-app.route("/", healthRouter);
-app.route("/auth", authRouter);
+// cors
+app.use("*", corsHandler);
+// auth
+app.use("*", securityHandler);
+// routes
+app.route("/", appRouter);
+// error handling
 app.onError(errorHandler);
 app.notFound(undefinedRouteHandler);
-
-// export default {
-//   port: Number(process.env.PORT) || 8086,
-//   fetch: app.fetch,
-// };
 
 export default app;

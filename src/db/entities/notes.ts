@@ -1,19 +1,19 @@
 import { pgTable, uuid, timestamp, index, foreignKey, text, boolean } from "drizzle-orm/pg-core";
 import { users } from "@/db/entities/users";
-import { relations } from "drizzle-orm";
+import { relations, type InferSelectModel } from "drizzle-orm";
 
 export const notes = pgTable(
   "notes",
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     content: text().notNull(),
-    createdAt: timestamp("created_at", { precision: 6, mode: "string" }).notNull(),
+    createdAt: timestamp("created_at", { precision: 6, mode: "date" }).notNull(),
     preview: text().notNull(),
-    updatedAt: timestamp("updated_at", { precision: 6, mode: "string" }).notNull(),
+    updatedAt: timestamp("updated_at", { precision: 6, mode: "date" }).notNull(),
     userId: uuid("user_id").defaultRandom().notNull(),
     isDeleted: boolean("is_deleted").default(false),
     isArchived: boolean("is_archived").default(false),
-    deletedAt: timestamp("deleted_at", { precision: 6, mode: "string" }),
+    deletedAt: timestamp("deleted_at", { precision: 6, mode: "date" }),
   },
   (table) => [
     index("idx_note_id").using("btree", table.id.asc().nullsLast().op("uuid_ops")),
@@ -31,3 +31,5 @@ export const notesRelations = relations(notes, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export type NoteEntity = InferSelectModel<typeof notes>;

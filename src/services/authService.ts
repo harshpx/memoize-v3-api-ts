@@ -75,6 +75,10 @@ export const authService = {
     return { accessToken, refreshToken };
   },
 
+  logout: async (token: string): Promise<void> => {
+    await refreshTokenService.removeRefreshToken(token);
+  },
+
   checkEmailAvailability: async (email: string): Promise<boolean> => {
     const existingUser = await db.query.users.findFirst({
       where: (user, { eq }) => eq(user.email, email),

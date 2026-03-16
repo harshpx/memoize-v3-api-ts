@@ -1,5 +1,5 @@
 import { db } from "@/db/db";
-import { refreshTokens, users, type RefreshToken } from "@/db/entities";
+import { refreshTokens, users, type RefreshTokenEntity } from "@/db/entities";
 import { generateRandomString, hashString, verifyHash } from "@/utils/common";
 import { AuthError, DbQueryError, IllegalArgumentError, NotProvidedError } from "@/utils/errors";
 import { and, eq, gt } from "drizzle-orm";
@@ -79,7 +79,7 @@ export const refreshTokenService = {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        path: "/auth/refresh",
+        path: "/auth",
         maxAge: 24 * 60 * 60 * tokenExpiryDays,
       },
     };
@@ -99,6 +99,7 @@ export const refreshTokenService = {
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        path: "/auth",
         maxAge: 0,
       },
     };
@@ -108,11 +109,11 @@ export const refreshTokenService = {
   /**
    *
    * @param {string} token
-   * @returns {Promise<RefreshToken>}
+   * @returns {Promise<RefreshTokenEntity>}
    * @throws {IllegalArgumentError | NotProvidedError | AuthError}
    * @description Validates the provided refresh token string and retrieves the corresponding refresh token entity from the database.
    */
-  validateAndGetRefreshTokenEntity: async (token: string): Promise<RefreshToken> => {
+  validateAndGetRefreshTokenEntity: async (token: string): Promise<RefreshTokenEntity> => {
     if (!token.trim()) {
       throw new NotProvidedError("A valid refresh token is required");
     }
@@ -153,7 +154,7 @@ export const refreshTokenService = {
    * @returns {Promise<void>}
    * @description Deletes the refresh token associated with the provided token string from the database.
    */
-  removeRefreshToken: async (token: string) => {
+  removeRefreshToken: async (token: string): Promise<void> => {
     if (!token.trim()) {
       console.warn("[WARN]: Attempted to remove refresh token with empty token string");
       return;

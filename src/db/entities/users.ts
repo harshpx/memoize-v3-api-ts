@@ -37,4 +37,4 @@ export const usersRelations = relations(users, ({ many }) => ({
   notes: many(notes),
 }));
 
-export type User = InferSelectModel<typeof users>;
+export type UserEntity = InferSelectModel<typeof users>;
